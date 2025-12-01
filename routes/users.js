@@ -7,15 +7,35 @@ const router = express.Router();
 
 // Obtener todos los usuarios (solo admin)
 router.get("/", auth(["admin"]), async (req, res) => {
+    console.log(" INICIANDO GET /users ");
+    
     try {
+        console.log("1️ Ejecutando consulta SQL...");
+        
         const result = await pool.query("SELECT id, email, role FROM users ORDER BY id");
+        
+        console.log("2️ Consulta exitosa");
+        console.log(`3️ Usuarios encontrados: ${result.rows.length}`);
+        console.log("4️ Datos:", JSON.stringify(result.rows, null, 2));
+        
         res.json(result.rows);
+        
+        console.log("5️ Respuesta enviada al cliente");
+        
     } catch (err) {
-        res.status(500).json({ error: "Error al obtener usuarios" });
+        console.error(" ERROR EN GET /users ");
+        console.error("Error details:", err);
+        console.error("Error message:", err.message);
+        console.error("Error stack:", err.stack);
+        
+        res.status(500).json({ 
+            error: "Error al obtener usuarios",
+            details: err.message 
+        });
     }
 });
 
-// Crear usuario desde admin
+// Los demás endpoints (POST, PUT, DELETE) permanecen igual...
 router.post("/", auth(["admin"]), async (req, res) => {
     try {
         const { email, password, role } = req.body;
